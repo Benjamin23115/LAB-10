@@ -1,10 +1,9 @@
 #pragma once
 template <typename TYPE>
 class BinarySearchTree
-// constructor that takes a function pointer to a comparison function.
-//  Not sure what you meant by this ^^. I assume we use the int (*cmp)(const TYPE &item1, const TYPE &item2)
-//  That we used in the LinkedList for comparison. That is what I will be using for this template implementation
-// Since its the comparison function im the most familiar with.
+//Since we had to implement it and weren't given a file to inherit from public class, I took the liberty of trying
+//To keep everything as void functions (similar to how the other assignments have been) and changed certain functions
+//As needed, for example if it made more sense to make a function a void or a bool.
 {
 private:
     struct Node
@@ -92,5 +91,22 @@ public:
         while (current && current->left != nullptr)
             current = current->left;
         return current;
+    }
+    bool search(Node *node, TYPE item)
+    {
+        if (node == nullptr)
+            throw std::runtime_error("Item not found in tree");
+        else if (cmp(item, node->data))
+        {
+            return search(node->left, item); // search in the left subtree
+        }
+        else if (cmp(node->data, item))
+        {
+            return search(node->right, item); // search in the right subtree
+        }
+        else
+        {
+            return true; // item found
+        }
     }
 };
