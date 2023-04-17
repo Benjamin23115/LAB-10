@@ -5,15 +5,27 @@ private:
     struct Node
     {
         TYPE data;
-        Node *leftChild;
-        Node *rightChild;
-        Node(TYPE item) : data(item), leftChild(nullptr), rightChild(nullptr) {}
+        Node *left;
+        Node *right;
+        Node(TYPE item) : data(item), left(nullptr), right(nullptr) {}
     };
+    Node *root = nullptr;
 
 public:
     BinarySearchTree() : root(nullptr) {}
     ~BinarySearchTree()
     {
         destroyTree(root);
+    }
+    void destroyTree(BinarySearchTree<TYPE> *node)
+    {
+        if (node == nullptr)
+            return;
+        else
+        {
+            destroyTree(node->left);
+            destroyTree(node->right);
+            delete node;
+        }
     }
 };
