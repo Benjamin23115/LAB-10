@@ -92,7 +92,7 @@ public:
             current = current->left;
         return current;
     }
-    bool search(Node *node, TYPE item)
+    TYPE search(Node *node, TYPE item)
     {
         if (node == nullptr)
             throw std::runtime_error("Item not found in tree");
@@ -106,7 +106,7 @@ public:
         }
         else
         {
-            return true; // item found
+            return node->data; // item found
         }
     }
 };
