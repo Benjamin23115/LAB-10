@@ -11,6 +11,7 @@ int compare(const TYPE &item1, const TYPE &item2)
 
     return 1;
 }
+
 int main(int argc, char const *argv[])
 {
     BinarySearchTree<int> BST;
@@ -22,11 +23,8 @@ int main(int argc, char const *argv[])
     BST.insert(9);
     BST.insert(2);
 
-    cout << "Unbalanced tree: " << endl;
-    BST.print();
     BST.designerShoeWarehouse();
-    cout << "Balanced tree: " << endl;
-    BST.print();
+
 
     return 0;
 }
