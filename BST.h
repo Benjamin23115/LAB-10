@@ -228,4 +228,13 @@ public:
         }
         return current->right;
     }
+    int compare(const TYPE &item1, const TYPE &item2)
+    {
+        if (item1 < item2)
+            return -1;
+        if (item1 == item2)
+            return 0;
+
+        return 1;
+    }
 };
