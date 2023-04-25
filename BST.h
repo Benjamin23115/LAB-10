@@ -16,12 +16,11 @@ private:
         Node *right;
         Node(TYPE item) : data(item), left(nullptr), right(nullptr) {}
     };
-    int size;
     Node *root = nullptr;
 
 public:
     // Changed the constructor here to not take in a comparison function in it as I have the actual comparison function itself in the main file
-    BinarySearchTree() : size(0), root(nullptr) {}
+    BinarySearchTree() : root(nullptr) {}
     ~BinarySearchTree()
     {
         destroyTree(root);
@@ -42,7 +41,6 @@ public:
         if (root == nullptr)
         {
             root = new Node(item);
-            size++;
         }
         else
         {
@@ -54,7 +52,6 @@ public:
                     if (current->left == nullptr)
                     {
                         current->left = new Node(item);
-                        size++;
                         break;
                     }
                     else
@@ -67,7 +64,6 @@ public:
                     if (current->right == nullptr)
                     {
                         current->right = new Node(item);
-                        size++;
                         break;
                     }
                     else
@@ -82,7 +78,6 @@ public:
     void remove(TYPE item)
     {
         root = removeNode(root, item);
-        size--;
     }
 
     Node *removeNode(Node *node, TYPE item)
@@ -150,50 +145,60 @@ public:
     // This function is the left Rotation in DSW
     // I had a super simple leftRotation/rightRotation function before, but after reading the grandparent note on the slides I realized I needed to change my functions to include parents and grandparents, not just children nodes.
 
-    void leftRotation(Node *node)
+    void leftRotation(Node *node, int m)
     {
-        // TODO update the parent node
         Node *current = node->right;
-        if (current->left != nullptr)
+        for (int i = 0; i < m; i++)
         {
-            node->right = current->left;
+            Node oldCurrent = current;
+            current = current->right;
+            node->right = current;
+            oldCurrent->right = current->left;
+            current->left = oldCurrent;
+            node = current;
+            current = current->right;
         }
-        else
-        {
-            node->right = nullptr;
-        }
-        current->left = node;
     }
     // this function is the right rotation in DSW
-    void rightRotation(Node *node)
+
+    int rightRotation(Node *node)
     {
-        // TODO update the parent node
-        Node *current = node->left;
-        if (current->right != nullptr)
+        int count = 0;
+        Node current = node->right;
+        // We traverse until current is nullptr/NULL
+        while (current)
         {
-            node->left = current->right;
+            if (current->left)
+            {
+                Node *oldCurrent = current;
+                current = current->left;
+                oldCurrent = current->right;
+                current->right = oldCurrent;
+                node->right = current;
+            }
+            // Here left doesn't exist so we traverse down the right side instead
+            else
+            {
+                count++;
+                node = current;
+                current = current->right;
+            }
         }
-        else
-        {
-            node->left = nullptr;
-        }
-        current->right = node;
+        return count;
     }
     // For this function, im using https://www.geeksforgeeks.org/day-stout-warren-algorithm-to-balance-given-binary-search-tree/ as a reference
     // Something to note, designerShoeWarehouse is the DSW method algorithm. Its just a little joke that I thought of when DSW was being lectured about.
-    Node *designerShoeWarehouse(void)
+    Node *designerShoeWarehouse(Node *root)
     {
         Node *current = new Node(0);
         current->right = root;
-        int count = size;
+        int count = rightRotation(current);
         int h = log2(count + 1);
         int m = pow(2, h) - 1;
-        // Getting our tree to be a right-leaning linked list
-        rightRotation(current);
-        // Doing rotations to make the tree balanced
+        compress(current, count - m);
         for (m = m / 2; m > 0; m /= 2)
         {
-            leftRotation(current);
+            compress(current, m);
         }
         return current->right;
     }
