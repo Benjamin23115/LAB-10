@@ -15,6 +15,7 @@ int main(int argc, char const *argv[])
 
     BST.designerShoeWarehouse();
 
+cout << " operation done"  << endl;
 
     return 0;
 }

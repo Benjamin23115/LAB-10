@@ -57,6 +57,7 @@ public:
                     else
                     {
                         current = current->left;
+                        break;
                     }
                 }
                 else if (compare(current->data, item) == 1)
@@ -69,6 +70,7 @@ public:
                     else
                     {
                         current = current->right;
+                        break;
                     }
                 }
             }
@@ -150,7 +152,7 @@ public:
         Node *current = node->right;
         for (int i = 0; i < m; i++)
         {
-            Node oldCurrent = current;
+            Node *oldCurrent = current;
             current = current->right;
             node->right = current;
             oldCurrent->right = current->left;
@@ -164,7 +166,7 @@ public:
     int rightRotation(Node *node)
     {
         int count = 0;
-        Node current = node->right;
+        Node *current = node->right;
         // We traverse until current is nullptr/NULL
         while (current)
         {
@@ -188,17 +190,17 @@ public:
     }
     // For this function, im using https://www.geeksforgeeks.org/day-stout-warren-algorithm-to-balance-given-binary-search-tree/ as a reference
     // Something to note, designerShoeWarehouse is the DSW method algorithm. Its just a little joke that I thought of when DSW was being lectured about.
-    Node *designerShoeWarehouse(Node *root)
+    Node *designerShoeWarehouse()
     {
         Node *current = new Node(0);
         current->right = root;
         int count = rightRotation(current);
         int h = log2(count + 1);
         int m = pow(2, h) - 1;
-        compress(current, count - m);
+        leftRotation(current, count - m);
         for (m = m / 2; m > 0; m /= 2)
         {
-            compress(current, m);
+            leftRotation(current, m);
         }
         return current->right;
     }
