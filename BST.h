@@ -40,14 +40,11 @@ public:
         if (node == nullptr)
         {
             node = new Node(item);
-
             size++;
         }
         else
         {
-
-            // TODO: Add value checking here
-            //  Using the pointer comparison stuff here
+            // Using the pointer comparison stuff here
             if (cmp(item, node->data))
                 insert(node->left, item);
             else if (cmp(node->data, item))
