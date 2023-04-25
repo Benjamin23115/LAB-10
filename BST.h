@@ -49,7 +49,7 @@ public:
             Node *current = root;
             while (true)
             {
-                if (compare(item, current->data))
+                if (compare(item, current->data) == -1)
                 {
                     if (current->left == nullptr)
                     {
@@ -62,7 +62,7 @@ public:
                         current = current->left;
                     }
                 }
-                else if (compare(current->data, item))
+                else if (compare(current->data, item) == 1)
                 {
                     if (current->right == nullptr)
                     {
@@ -74,10 +74,6 @@ public:
                     {
                         current = current->right;
                     }
-                }
-                else
-                {
-                    throw std::runtime_error("Duplicate value in the tree");
                 }
             }
         }
