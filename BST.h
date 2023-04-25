@@ -1,5 +1,7 @@
 #pragma once
 #include <cmath>
+#include <iomanip>
+#include <iostream>
 template <typename TYPE>
 class BinarySearchTree
 // Since we had to implement it and weren't given a file to inherit from public class, I took the liberty of trying
@@ -19,7 +21,7 @@ private:
 
 public:
     // Changed the constructor here to not take in a comparison function in it as I have the actual comparison function itself in the main file
-    BinarySearchTree() : size(0) {}
+    BinarySearchTree() : size(0), root(nullptr) {}
     ~BinarySearchTree()
     {
         destroyTree(root);
@@ -28,69 +30,88 @@ public:
     {
         if (node == nullptr)
             return;
-        else
-        {
-            destroyTree(node->left);
-            destroyTree(node->right);
-            delete node;
-        }
+        destroyTree(node->left);
+        destroyTree(node->right);
+        delete node;
+        root = nullptr;
     }
-    void insert(Node *&node, TYPE item)
+    // Before I had an insert function that didn't really make much sense as there is no need for a node when inserting rather just the data itselfs
+    void insert(TYPE item)
     {
-        if (node == nullptr)
+        if (root == nullptr)
         {
-            node = new Node(item);
+            root = new Node(item);
             size++;
         }
         else
         {
-            // Using the pointer comparison stuff here
-            if (compare(item, node->data) == -1)
-                insert(node->left, item);
-            else if (compare(node->data, item) == 1)
-                insert(node->right, item);
-            // Throwing an error if the item is equal to something in the tree
+            Node *current = root;
+            Node *parent = nullptr;
+
+            while (current != nullptr)
+            {
+                parent = current;
+                if (compare(item, current->data) == -1)
+                    current = current->left;
+                else if (compare(current->data, item) == 1)
+                    current = current->right;
+                else
+                    throw std::runtime_error("Duplicate value in the tree");
+            }
+
+            if (compare(item, parent->data) == -1)
+                parent->left = new Node(item);
             else
-                throw std::runtime_error("Duplicate value in the tree");
+                parent->right = new Node(item);
+
+            size++;
         }
     }
-    void remove(Node *&node, TYPE item)
+    // Refactored the remove function to use a friend function here to remove properly (compared to how this function was originally set up)
+    void remove(TYPE item)
+    {
+        root = removeNode(root, item);
+        size--;
+    }
+
+    Node *removeNode(Node *node, TYPE item)
     {
         if (node == nullptr)
-            return;
+            return node;
+
         if (compare(item, node->data) == -1)
-            remove(node->left, item);
+            node->left = removeNode(node->left, item);
         else if (compare(node->data, item) == 1)
-            remove(node->right, item);
+            node->right = removeNode(node->right, item);
         else
         {
             if (node->left == nullptr && node->right == nullptr)
             {
                 delete node;
-                node = nullptr;
             }
             else if (node->left == nullptr)
             {
                 Node *temp = node;
-                node = root->right;
+                node = node->right;
                 delete temp;
             }
             else if (node->right == nullptr)
             {
                 Node *temp = node;
-                node = root->left;
+                node = node->left;
                 delete temp;
             }
             else
             {
-
-                Node *temp = minValueNode(root->right);
+                Node *temp = minValueNode(node->right);
                 node->data = temp->data;
-                remove(root->right, temp->data);
+                node->right = removeNode(node->right, temp->data);
                 delete temp;
             }
         }
+        return node;
     }
+
     Node *minValueNode(Node *node)
     {
         Node *current = node;
@@ -100,7 +121,7 @@ public:
     }
     TYPE search(Node *node, TYPE item)
     {
-        if (node == nullptr)
+        if (root == nullptr)
             throw std::runtime_error("Item not found in tree");
         else if (compare(item, node->data) == -1)
         {
@@ -116,40 +137,81 @@ public:
         }
     }
     // This function is the left Rotation in DSW
+    // I had a super simple leftRotation/rightRotation function before, but after reading the grandparent note on the slides I realized I needed to change my functions to include parents and grandparents, not just children nodes.
+
     void leftRotation(Node *node)
     {
-        // TODO update the parent node
-        Node *current = node->right;
-        if (current->left != nullptr)
+        if (node == nullptr || node->right == nullptr)
+            return;
+
+        Node *parent = node;
+        Node *child = node->right;
+        Node *grandparent = nullptr;
+
+        if (parent->right != nullptr)
+            grandparent = parent->right;
+
+        // Perform the rotation
+        parent->right = child->left;
+        child->left = parent;
+
+        // Update parent and grandparent
+        if (parent->parent != nullptr)
         {
-            node->right = current->left;
+            if (parent->parent->left == parent)
+                parent->parent->left = child;
+            else
+                parent->parent->right = child;
         }
         else
         {
-            node->right = nullptr;
+            root = child; // Update root
         }
-        current->left = node;
+
+        child->parent = parent->parent;
+        parent->parent = child;
+
+        if (grandparent != nullptr)
+            grandparent->parent = parent;
     }
     // this function is the right rotation in DSW
     void rightRotation(Node *node)
     {
-        // TODO update the parent node
-        Node *current = node->left;
-        if (current->right != nullptr)
+        if (node == nullptr || node->left == nullptr)
+            return;
+
+        Node *parent = node;
+        Node *child = node->left;
+        Node *grandparent = nullptr;
+
+        if (parent->left != nullptr)
+            grandparent = parent->left;
+
+        // Perform the rotation
+        parent->left = child->right;
+        child->right = parent;
+
+        // Update parent and grandparent
+        if (parent->parent != nullptr)
         {
-            node->left = current->right;
+            if (parent->parent->left == parent)
+                parent->parent->left = child;
+            else
+                parent->parent->right = child;
         }
         else
         {
-            node->left = nullptr;
+            root = child; // Update root
         }
-        current->right = node;
-    }
-    int getSize(void)
-    {
-        return size;
+
+        child->parent = parent->parent;
+        parent->parent = child;
+
+        if (grandparent != nullptr)
+            grandparent->parent = parent;
     }
     // For this function, im using https://www.geeksforgeeks.org/day-stout-warren-algorithm-to-balance-given-binary-search-tree/ as a reference
+    // Something to note, designerShoeWarehouse is the DSW method algorithm. Its just a little joke that I thought of when DSW was being lectured about.
     Node *designerShoeWarehouse(void)
     {
         Node *current = new Node(0);
