@@ -36,6 +36,7 @@ public:
         root = nullptr;
     }
     // Before I had an insert function that didn't really make much sense as there is no need for a node when inserting rather just the data itselfs
+
     void insert(TYPE item)
     {
         if (root == nullptr)
@@ -46,25 +47,39 @@ public:
         else
         {
             Node *current = root;
-            Node *parent = nullptr;
-
-            while (current != nullptr)
+            while (true)
             {
-                parent = current;
-                if (compare(item, current->data) == -1)
-                    current = current->left;
-                else if (compare(current->data, item) == 1)
-                    current = current->right;
+                if (compare(item, current->data))
+                {
+                    if (current->left == nullptr)
+                    {
+                        current->left = new Node(item);
+                        size++;
+                        break;
+                    }
+                    else
+                    {
+                        current = current->left;
+                    }
+                }
+                else if (compare(current->data, item))
+                {
+                    if (current->right == nullptr)
+                    {
+                        current->right = new Node(item);
+                        size++;
+                        break;
+                    }
+                    else
+                    {
+                        current = current->right;
+                    }
+                }
                 else
+                {
                     throw std::runtime_error("Duplicate value in the tree");
+                }
             }
-
-            if (compare(item, parent->data) == -1)
-                parent->left = new Node(item);
-            else
-                parent->right = new Node(item);
-
-            size++;
         }
     }
     // Refactored the remove function to use a friend function here to remove properly (compared to how this function was originally set up)
@@ -141,74 +156,32 @@ public:
 
     void leftRotation(Node *node)
     {
-        if (node == nullptr || node->right == nullptr)
-            return;
-
-        Node *parent = node;
-        Node *child = node->right;
-        Node *grandparent = nullptr;
-
-        if (parent->right != nullptr)
-            grandparent = parent->right;
-
-        // Perform the rotation
-        parent->right = child->left;
-        child->left = parent;
-
-        // Update parent and grandparent
-        if (parent->parent != nullptr)
+        // TODO update the parent node
+        Node *current = node->right;
+        if (current->left != nullptr)
         {
-            if (parent->parent->left == parent)
-                parent->parent->left = child;
-            else
-                parent->parent->right = child;
+            node->right = current->left;
         }
         else
         {
-            root = child; // Update root
+            node->right = nullptr;
         }
-
-        child->parent = parent->parent;
-        parent->parent = child;
-
-        if (grandparent != nullptr)
-            grandparent->parent = parent;
+        current->left = node;
     }
     // this function is the right rotation in DSW
     void rightRotation(Node *node)
     {
-        if (node == nullptr || node->left == nullptr)
-            return;
-
-        Node *parent = node;
-        Node *child = node->left;
-        Node *grandparent = nullptr;
-
-        if (parent->left != nullptr)
-            grandparent = parent->left;
-
-        // Perform the rotation
-        parent->left = child->right;
-        child->right = parent;
-
-        // Update parent and grandparent
-        if (parent->parent != nullptr)
+        // TODO update the parent node
+        Node *current = node->left;
+        if (current->right != nullptr)
         {
-            if (parent->parent->left == parent)
-                parent->parent->left = child;
-            else
-                parent->parent->right = child;
+            node->left = current->right;
         }
         else
         {
-            root = child; // Update root
+            node->left = nullptr;
         }
-
-        child->parent = parent->parent;
-        parent->parent = child;
-
-        if (grandparent != nullptr)
-            grandparent->parent = parent;
+        current->right = node;
     }
     // For this function, im using https://www.geeksforgeeks.org/day-stout-warren-algorithm-to-balance-given-binary-search-tree/ as a reference
     // Something to note, designerShoeWarehouse is the DSW method algorithm. Its just a little joke that I thought of when DSW was being lectured about.
@@ -216,7 +189,7 @@ public:
     {
         Node *current = new Node(0);
         current->right = root;
-        int count = getSize();
+        int count = size;
         int h = log2(count + 1);
         int m = pow(2, h) - 1;
         // Getting our tree to be a right-leaning linked list
