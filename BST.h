@@ -45,9 +45,9 @@ public:
         else
         {
             // Using the pointer comparison stuff here
-            if (cmp(item, node->data) == -1)
+            if (compare(item, node->data) == -1)
                 insert(node->left, item);
-            else if (cmp(node->data, item) == 1)
+            else if (compare(node->data, item) == 1)
                 insert(node->right, item);
             // Throwing an error if the item is equal to something in the tree
             else
@@ -58,9 +58,9 @@ public:
     {
         if (node == nullptr)
             return;
-        if (cmp(item, node->data) == -1)
+        if (compare(item, node->data) == -1)
             remove(node->left, item);
-        else if (cmp(node->data, item) == 1)
+        else if (compare(node->data, item) == 1)
             remove(node->right, item);
         else
         {
@@ -102,11 +102,11 @@ public:
     {
         if (node == nullptr)
             throw std::runtime_error("Item not found in tree");
-        else if (cmp(item, node->data) == -1)
+        else if (compare(item, node->data) == -1)
         {
             return search(node->left, item); // search in the left subtree
         }
-        else if (cmp(node->data, item) == 1)
+        else if (compare(node->data, item) == 1)
         {
             return search(node->right, item); // search in the right subtree
         }
